@@ -14,7 +14,7 @@ class Plugin extends Base
       $this->template->hook->attach('template:project-list:menu:before', 'bigboard:Bigboard');
       //$this->template->hook->attach('template:project-header:view-switcher', 'bigboard:BigboardNoOpts');
       $this->template->hook->attach('template:header:dropdown', 'bigboard:header/user_dropdown');      
-      
+      $this->template->hook->attach('template:dashboard:page-header:menu', 'bigboard:header/bigboard_header_link');
       $this->template->setTemplateOverride('board/table_container','bigboard:board/table_container');
       $this->template->setTemplateOverride('board/table_tasks','bigboard:board/table_tasks');
       $this->template->setTemplateOverride('board/table_private','bigboard:board/table_private');
