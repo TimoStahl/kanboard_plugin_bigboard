@@ -24,57 +24,55 @@ class BoardAjaxController extends BaseController
     {
         $values = $this->request->getJson();
         
-        if (! $values['old_project_id'] || ! $this->request->isAjax()) {
+        if (! $values['src_project_id'] || ! $this->request->isAjax()) {
             throw new AccessForbiddenException();
         }
-
-        if (! $this->helper->projectRole->canMoveTask($values['old_project_id'], $values['src_column_id'], $values['dst_column_id'])) {
-            throw new AccessForbiddenException(e("You don't have the permission to move this task"));
-        }
 		
-		$movedBetweenProjects = false;
-        if ($values['project_id'] != $values['old_project_id']){
+        if ($values['dst_project_id'] != $values['src_project_id']){
             list($valid, ) = $this->taskValidator->validateProjectModification(array(
                 "id" => intval($values['task_id']),
-                "project_id" => intval($values['project_id']),
-                "swimlane_id" => intval($values['swimlane_id']),
+                "project_id" => intval($values['dst_project_id']),
+                "swimlane_id" => intval($values['dst_swimlane_id']),
                 "column_id" => intval($values['dst_column_id']),
                 "category_id" => intval($values['category_id']),
                 "owner_id" => intval($values['owner_id'])
             ));
             
-            if(!$valid){
+            if (!$valid){
                 throw new AccessForbiddenException(e("Malformed Request"));
+				return;
             }
             
-            if (!($valid && $this->taskProjectMoveModel->moveToProject($values['task_id'], $values['project_id'], $values['swimlane_id'], $values['dst_column_id'], $values['category_id'], $values['owner_id']))) {
+            if ($valid && !$this->taskProjectMoveModel->moveToProject($values['task_id'], $values['dst_project_id'], $values['dst_swimlane_id'], $values['dst_column_id'], $values['category_id'], $values['owner_id'])) {
                 throw new AccessForbiddenException(e("Project cant be moved"));
                 return;
             }
 			
-			$movedBetweenProjects = true;
-        }
+			if ( ! $this->helper->projectRole->canMoveTask($values['dst_project_id'], $values['dst_column_id'], $values['dst_column_id'])) {
+				throw new AccessForbiddenException(e("You don't have the permission to move this task"));
+				return;
+			}
+        } else {
+			if ( ! $this->helper->projectRole->canMoveTask($values['src_project_id'], $values['src_column_id'], $values['dst_column_id'])) {
+				throw new AccessForbiddenException(e("You don't have the permission to move this task"));
+				return;
+			}
+		}
+		
+		/* Could result in a false return, due to the position being the same */
 		$result = $this->taskPositionModel->movePosition(
-			$values['project_id'],
+			$values['dst_project_id'],
 			$values['task_id'],
 			$values['dst_column_id'],
 			$values['position'],
-			$values['swimlane_id']
+			$values['dst_swimlane_id']
 		);
-
-		if (! $result) {
-			$this->response->status(400);
-			return;
-		}
-		if($movedBetweenProjects){
-			$this->response->html($this->renderBoard($values['project_id']), 201);				
-		}else{
-			$this->response->html($this->renderBoard($values['old_project_id']), 201);				
-		}
+		
+		$this->response->html($this->renderBoard($values['dst_project_id']), 201);	
     }
 
     /**
-     * Check if the board have been changed
+     * Check if the board has been changed
      *
      * @access public
      */

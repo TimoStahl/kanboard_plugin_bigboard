@@ -19,8 +19,6 @@ Kanboard.BoardDragAndDrop.prototype.dragAndDrop = function() {
         // Set dropzone height to the height of the table cell
         $(this).css("min-height", $(this).parent().height());
 
-        var project_id = $(this).closest("table[id=board]").attr("data-project-id");
-
         var params = {
             forcePlaceholderSize: true,
             tolerance: "pointer",
@@ -32,16 +30,14 @@ Kanboard.BoardDragAndDrop.prototype.dragAndDrop = function() {
                 var taskId = task.attr('data-task-id');
                 var taskPosition = task.attr('data-position');
                 var taskColumnId = task.attr('data-column-id');
-                var taskNewSwimlaneId = task.attr('data-swimlane-id');
                 var taskCategoryId = task.attr('data-category-id');
                 var taskOwnerId = task.attr('data-owner-id');
-
                 var taskProjectId = task.attr('data-project-id');
+				var taskSwimlaneId = task.attr('data-swimlane-id');
 
                 var newColumnId = task.parent().attr("data-column-id");
                 var newSwimlaneId = task.parent().attr('data-swimlane-id');
                 var newProjectId = task.parent().attr('data-project-id');
-
                 var newPosition = task.index() + 1;
 
                 var boardId = task.closest("table").attr("data-project-id");
@@ -51,7 +47,7 @@ Kanboard.BoardDragAndDrop.prototype.dragAndDrop = function() {
 
                 if (newColumnId != taskColumnId || newSwimlaneId != taskSwimlaneId || newPosition != taskPosition || newProjectId != taskProjectId ) {
                     self.changeTaskState(taskId);
-                    self.save(saveURL, boardId, taskId, taskColumnId, newColumnId, newPosition, newSwimlaneId, taskProjectId, newProjectId, taskCategoryId, taskOwnerId );                        
+                    self.save(saveURL, taskId, taskCategoryId, taskOwnerId, taskColumnId, taskProjectId, newColumnId, newPosition, newSwimlaneId, newProjectId );                        
                 }
             },
             start: function(event, ui) {
@@ -75,7 +71,7 @@ Kanboard.BoardDragAndDrop.prototype.changeTaskState = function(taskId) {
     task.find('.task-board-saving-icon').show();
 };
 
-Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, boardId, taskId, srcColumnId, dstColumnId, position, swimlaneId, oldProjectId, newProjectId, taskCategoryId, taskOwnerId ) {
+Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategoryId, taskOwnerId, srcColumnId, srcProjectId, dstColumnId, dstPosition, dstSwimlaneId, dstProjectId ) {
     var self = this;
     self.app.showLoadingIcon();
     self.savingInProgress = true;
@@ -90,16 +86,20 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, boardId, taskId, sr
             "task_id": taskId,
             "src_column_id": srcColumnId,
             "dst_column_id": dstColumnId,
-            "swimlane_id": swimlaneId,
-            "project_id": newProjectId,
-            "old_project_id": oldProjectId,
+            "dst_swimlane_id": dstSwimlaneId,
+            "dst_project_id": dstProjectId,
+            "src_project_id": srcProjectId,
             "category_id": taskCategoryId,
             "owner_id": taskOwnerId,
-            "position": position
+            "position": dstPosition
         }),
         success: function(data) {
-            self.refresh(boardId,data);
-            self.savingInProgress = false;
+            self.setContent(dstProjectId,data);
+			if( srcProjectId != dstProjectId ) {
+				self.refresh(srcProjectId);
+			} else {
+				self.savingInProgress = false;				
+			}
         },
         error: function() {
             self.app.hideLoadingIcon();
@@ -114,7 +114,28 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, boardId, taskId, sr
     });
 };
 
-Kanboard.BoardDragAndDrop.prototype.refresh = function(boardId, data) {
+Kanboard.BoardDragAndDrop.prototype.refresh = function(boardId) {
+	var self = this;
+	self.savingInProgress = true;
+    var reloadDataUrl = $("table[id=board][data-project-id=" + boardId + "]").attr("data-check-url");
+	$.ajax({
+		cache: false,
+		url: reloadDataUrl,
+		statusCode: {
+			200: function(data) {                        
+				self.app.hideLoadingIcon();
+				self.app.get("BoardDragAndDrop").setContent(boardId, data);
+				self.savingInProgress = false;
+			},
+			304: function () {
+				self.app.hideLoadingIcon();
+				self.savingInProgress = false;
+			}
+		}
+	});
+};
+
+Kanboard.BoardDragAndDrop.prototype.setContent = function(boardId, data) {
 
     $("div[id=board-container][data-project-id=" + boardId + "]").replaceWith(data);
 

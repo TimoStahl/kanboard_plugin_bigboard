@@ -29,7 +29,7 @@ Kanboard.BoardPolling.prototype.check = function() {
                     200: function(data) {                        
                         pollsinprogress--;
                         if (pollsinprogress <= 0) self.app.hideLoadingIcon();
-                        self.app.get("BoardDragAndDrop").refresh(boardId, data);
+                        self.app.get("BoardDragAndDrop").setBoardContent(boardId, data);
                     },
                     304: function () {
                         pollsinprogress--;
