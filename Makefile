@@ -1,5 +1,5 @@
 plugin=Bigboard
-version=1.3.0
+version=1.4.0
 
 all:
 	@ echo "Build archive for plugin ${plugin} version=${version}"
