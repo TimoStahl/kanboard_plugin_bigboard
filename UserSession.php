@@ -23,4 +23,21 @@ class UserSession extends \Kanboard\Core\User\UserSession
     {
         session_set('bigboardCollapsed', true);
     }
+
+    /**
+     * Set the BigBoard search string
+     *
+     * @param string $search a Kanboard-style search string
+     */
+    public function setBigboardSearch($search) {
+        session_set('bigboardSearch', $search);
+    }
+
+    /**
+     * Gets the BigBoard search key
+     * @return mixed|null Kanboard-style search string
+     */
+    public function getBigboardSearch() {
+        return session_get('bigboardSearch');
+    }
 }

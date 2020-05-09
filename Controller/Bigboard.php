@@ -55,7 +55,8 @@ class Bigboard extends BaseController
     {
         $user = $this->getUser();
         $project_ids = $this->bigboardModel->selectFindAllProjectsById($user['id']);
-        $search = urldecode($this->request->getStringParam('search'));
+        $search = urldecode($this->request->getStringParam('search', $this->userSession->getBigboardSearch()));
+        $this->userSession->setBigboardSearch($search);
         $nb_projects = count($project_ids);
 
         $categories_list = $users_list = $custom_filters_list = [];
@@ -160,9 +161,8 @@ class Bigboard extends BaseController
         foreach ($project_ids as $project_id) {
             if ($this->bigboardModel->selectFind($project_id, $user['id'])) {
                 $project = $this->projectModel->getByIdWithOwner($project_id);
-                $search = $this->helper->projectHeader->getSearchQuery($project);
+                $search = $this->userSession->getBigBoardSearch();
                 ++$nb;
-                //print "SEARCH2: $search";
 
                 $this->userMetadataCacheDecorator->set(UserMetadataModel::KEY_BOARD_COLLAPSED.$project_id, $this->userSession->isBigboardCollapsed());
 
