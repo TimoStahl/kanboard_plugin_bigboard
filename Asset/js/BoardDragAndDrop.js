@@ -71,6 +71,12 @@ Kanboard.BoardDragAndDrop.prototype.changeTaskState = function(taskId) {
     task.find('.task-board-saving-icon').show();
 };
 
+Kanboard.BoardDragAndDrop.prototype.hideChangeTaskState = function(taskId) {
+    var task = $("div[data-task-id=" + taskId + "]");
+    task.removeClass('task-board-saving-state');
+    task.find('.task-board-saving-icon').hide();
+};
+
 Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategoryId, taskOwnerId, srcColumnId, srcProjectId, dstColumnId, dstPosition, dstSwimlaneId, dstProjectId ) {
     var self = this;
     self.app.showLoadingIcon();
@@ -98,6 +104,7 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategor
 			if( srcProjectId != dstProjectId ) {
 				self.refresh(srcProjectId);
 			} else {
+				self.hideChangeTaskState(taskId);
 				self.savingInProgress = false;				
 			}
         },
