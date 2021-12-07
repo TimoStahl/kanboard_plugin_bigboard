@@ -102,7 +102,7 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategor
         success: function(data) {
             self.setContent(dstProjectId,data);
 			if( srcProjectId != dstProjectId ) {
-				self.refreshBoard(srcProjectId);
+				self.refreshProject(srcProjectId);
 			} else {
 				self.hideChangeTaskState(taskId);
 				self.savingInProgress = false;				
@@ -121,7 +121,7 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategor
     });
 };
 
-Kanboard.BoardDragAndDrop.prototype.refreshBoard = function(boardId) {
+Kanboard.BoardDragAndDrop.prototype.refreshProject = function(boardId) {
 	var self = this;
 	self.savingInProgress = true;
     var reloadDataUrl = $("table[id=board][data-project-id=" + boardId + "]").attr("data-check-url");
