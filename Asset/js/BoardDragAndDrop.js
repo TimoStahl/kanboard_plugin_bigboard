@@ -102,7 +102,7 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategor
         success: function(data) {
             self.setContent(dstProjectId,data);
 			if( srcProjectId != dstProjectId ) {
-				self.refresh(srcProjectId);
+				self.refreshBoard(srcProjectId);
 			} else {
 				self.hideChangeTaskState(taskId);
 				self.savingInProgress = false;				
@@ -121,7 +121,7 @@ Kanboard.BoardDragAndDrop.prototype.save = function(saveURL, taskId, taskCategor
     });
 };
 
-Kanboard.BoardDragAndDrop.prototype.refresh = function(boardId) {
+Kanboard.BoardDragAndDrop.prototype.refreshBoard = function(boardId) {
 	var self = this;
 	self.savingInProgress = true;
     var reloadDataUrl = $("table[id=board][data-project-id=" + boardId + "]").attr("data-check-url");
@@ -140,6 +140,14 @@ Kanboard.BoardDragAndDrop.prototype.refresh = function(boardId) {
 			}
 		}
 	});
+};
+
+Kanboard.BoardDragAndDrop.prototype.refresh = function (data) {
+    $("#bigboard").replaceWith(data);
+
+    this.app.hideLoadingIcon();
+    this.executeListeners();
+    this.dragAndDrop();
 };
 
 Kanboard.BoardDragAndDrop.prototype.setContent = function(boardId, data) {

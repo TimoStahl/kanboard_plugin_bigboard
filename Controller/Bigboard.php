@@ -193,9 +193,8 @@ class Bigboard extends BaseController
     {
         session_set('bigboardCollapsed', $mode);
 
-        $project_ids = $this->projectPermissionModel->getActiveProjectIds(session_get('user')['id']);
-
         if ($this->request->isAjax()) {
+            $project_ids = array_reverse($this->projectPermissionModel->getActiveProjectIds(session_get('user')['id']));
             $this->showProjects($project_ids);
         } else {
             $this->response->redirect($this->helper->url->to('Bigboard', 'index', ['plugin' => 'Bigboard']));
