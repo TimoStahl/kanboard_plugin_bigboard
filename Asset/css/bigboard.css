@@ -1,28 +1,31 @@
 .selitem {
-	border-radius: 4px;
+    border-radius: 4px;
     border: 1px solid #ddd;
     color: #333;
     background-color: rgba(200,200,200,0.1);
-	margin-bottom: 4px;
+    margin-bottom: 4px;
     white-space: nowrap;
-	padding: 2px;
-	transition: all 0.1s;
+    padding: 2px;
+    transition: all 0.1s;
 }
 
 .selitem:hover {
-	background-color: rgba(200,200,200,0.3);
+    background-color: rgba(200,200,200,0.3);
 }
 
 div.selitem input[type=checkbox]:checked + span {
-		background-color: rgba(255,200,0,0.3);
-		font-weight: bold;
-		padding: 3px;
-		border-radius: 5px;
+    background-color: rgba(255,200,0,0.3);
+    font-weight: bold;
+    padding: 3px;
+    border-radius: 5px;
 }
 
-.btn.BB {
-	width: 100%;
-	box-sizing: border-box;
+.btnbox {
+    display: flex;
+}
+
+.bbprojectcollapse {
+    flex: 1;
 }
 
 .bigbboard-collapse {
@@ -36,5 +39,5 @@ div.selitem input[type=checkbox]:checked + span {
 }
 
 label.sel {
-	margin-top: -1px;
+    margin-top: -1px;
 }
